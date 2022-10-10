@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: ${BET_DB_URL}
+    username: ${BET_DB_USERNAME}
+    password: ${BET_DB_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: ${BET_DB_PORT}
+  error:
+    include-message: always
