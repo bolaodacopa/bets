@@ -1,0 +1,12 @@
+version: '3.0'
+services:
+    bets-server:
+        container_name: bets-server
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: bets-server:latest
+        ports:
+          - 8084:8084
+        env_file:
+          - ./bets.env
