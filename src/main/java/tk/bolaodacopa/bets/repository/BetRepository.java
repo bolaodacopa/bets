@@ -15,4 +15,10 @@ public interface BetRepository extends JpaRepository<Bet, Long>  {
 	
 	Optional<Bet> findByAccountUsernameAndMatchMatchcode(String username, String matchcode);
 
+	List<Bet> findAllByAccountUsernameAndMatchMatchgroupAndMatchStageName(String username, String group, String stage);
+
+	List<Bet> findAllByAccountUsernameAndMatchStageName(String username, String stage);
+
+	List<Bet> findAllByAccountUsernameAndMatchMatchgroup(String username, String group);
+
 }

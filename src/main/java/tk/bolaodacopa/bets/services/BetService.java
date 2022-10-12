@@ -2,6 +2,7 @@ package tk.bolaodacopa.bets.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -76,10 +77,6 @@ public class BetService {
 		return betRepository.saveAll(listBets);
 	}
 
-	public List<Bet> findAllByUsername(String username) {
-		return betRepository.findAllByAccountUsername(username);
-	}
-
 	public Bet updateBet(String username, String matchcode, BetUpdateRequest betUpdateRequest) {
 		String hometeamresult;
 		String awayteamresult;
@@ -110,6 +107,24 @@ public class BetService {
 		bet.setAwayteamresult(awayteamresult);
 
 		return betRepository.save(bet);
+	}
+
+	public List<Bet> findAllByUsernameRequestParam(String username, Map<String, String> allParams) {
+		List<Bet> bets = new ArrayList<Bet>();
+		String stage = allParams.getOrDefault("stage", null);
+		String group = allParams.getOrDefault("group", null);
+
+		if((stage != null) && (group != null)) {
+			bets = betRepository.findAllByAccountUsernameAndMatchMatchgroupAndMatchStageName(username, group, stage);
+		} else if((stage != null)) {
+			bets = betRepository.findAllByAccountUsernameAndMatchStageName(username, stage);
+		} else if((group != null)) {
+			bets = betRepository.findAllByAccountUsernameAndMatchMatchgroup(username, group);
+		} else {
+			bets = betRepository.findAllByAccountUsername(username);
+		}		
+
+		return bets;
 	}	
 
 }
