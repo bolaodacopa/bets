@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import tk.bolaodacopa.bets.models.Bet;
 import tk.bolaodacopa.bets.payload.request.BetCreateRequest;
 import tk.bolaodacopa.bets.payload.request.BetUpdateRequest;
+import tk.bolaodacopa.bets.payload.response.BetMatchResponseDTO;
 import tk.bolaodacopa.bets.services.BetService;
 
 @RestController
@@ -50,11 +51,20 @@ public class BetController {
     		@RequestBody @NotEmpty(message = "Aposta não pode ser nula.") @Valid BetUpdateRequest bet) {
     	return this.service.updateBet(username, matchcode, bet);
     }	
-	
+
 	@GetMapping
+	@ResponseStatus(HttpStatus.OK)
 	public List<Bet> findAllByUsername(@RequestHeader("x-token-subject") String username,
 			@RequestParam Map<String,String> allParams) {
 		return this.service.findAllByUsernameRequestParam(username, allParams);
-	}	
+	}
+
+	@GetMapping(path = {"/matches"})
+	@ResponseStatus(HttpStatus.OK)
+	public List<BetMatchResponseDTO> findAllBetsAndMatches(@RequestHeader("x-token-subject") String username,
+			@RequestParam Map<String,String> allParams) {
+		return this.service.findAllBetsAndMatches(username, allParams);
+	}
+	
 	
 }

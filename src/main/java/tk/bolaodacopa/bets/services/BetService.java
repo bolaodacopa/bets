@@ -3,6 +3,7 @@ package tk.bolaodacopa.bets.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import tk.bolaodacopa.bets.models.Bet;
 import tk.bolaodacopa.bets.models.Match;
 import tk.bolaodacopa.bets.payload.request.BetCreateRequest;
 import tk.bolaodacopa.bets.payload.request.BetUpdateRequest;
+import tk.bolaodacopa.bets.payload.response.BetMatchResponseDTO;
 import tk.bolaodacopa.bets.repository.AccountRepository;
 import tk.bolaodacopa.bets.repository.BetRepository;
 import tk.bolaodacopa.bets.repository.MatchRepository;
@@ -44,9 +46,10 @@ public class BetService {
 		if(bets.stream().map((BetCreateRequest bet) -> bet.getMatchcode()).distinct().count() != bets.size())
 			throw new RuntimeException("Erro: Requisição de aposta duplicada");
 
-		for(BetCreateRequest request : bets) {			
-			if(betRepository.findByAccountUsernameAndMatchMatchcode(username, request.getMatchcode()).isPresent())
-				throw new RuntimeException("Erro: Já existe uma aposta cadastrada com o código: " + request.getMatchcode());
+		for(BetCreateRequest request : bets) {
+			Bet bet = null;
+			//if(betRepository.findByAccountUsernameAndMatchMatchcode(username, request.getMatchcode()).isPresent())
+			//	throw new RuntimeException("Erro: Já existe uma aposta cadastrada com o código: " + request.getMatchcode());
 
 			Match match = matchRepository.findByMatchcode(request.getMatchcode())
 					.orElseThrow(() -> new RuntimeException("Erro: Partida não encontrada: " + request.getMatchcode()));	
@@ -68,8 +71,17 @@ public class BetService {
 				awayteamresult = "EMPATE";			
 			}			
 
-			Bet bet = new Bet(account, match, request.getHometeamgoals(), request.getAwayteamgoals(), 
-					hometeamresult,awayteamresult);
+			Optional<Bet> optionalBet = betRepository.findByAccountUsernameAndMatchMatchcode(username, request.getMatchcode());
+			if(optionalBet.isEmpty()) {
+				bet = new Bet(account, match, request.getHometeamgoals(), request.getAwayteamgoals(), 
+						hometeamresult,awayteamresult);				
+			} else {
+				bet = optionalBet.get();
+				bet.setHometeamgoals(request.getHometeamgoals());
+				bet.setAwayteamgoals(request.getAwayteamgoals());
+				bet.setHometeamresult(hometeamresult);
+				bet.setAwayteamresult(awayteamresult);
+			}
 
 			listBets.add(bet);
 		}
@@ -125,6 +137,41 @@ public class BetService {
 		}		
 
 		return bets;
+	}
+
+	public List<BetMatchResponseDTO> findAllBetsAndMatches(String username, Map<String, String> allParams) {
+		List<BetMatchResponseDTO> listaBetsMatches = new ArrayList<BetMatchResponseDTO>();
+		List<Match> matches = new ArrayList<Match>();
+		String stage = allParams.getOrDefault("stage", null);
+		String group = allParams.getOrDefault("group", null);
+
+		Account account = accountRepository.findByUsername(username)
+				.orElseThrow(() -> new RuntimeException("Erro: Usuário não encontrado: " + username));		
+
+		if((stage != null) && (group != null)) {
+			matches = matchRepository.findAllByMatchgroupAndStageName(group, stage);
+		} else if((stage != null)) {
+			matches = matchRepository.findAllByStageName(stage);
+		} else if((group != null)) {
+			matches = matchRepository.findAllByMatchgroup(group);
+		} else {
+			matches = matchRepository.findAll();
+		}		
+
+		for(Match match : matches) {
+			BetMatchResponseDTO betMatchResponseDTO = null;
+
+			Optional<Bet> bet = betRepository.findByAccountUsernameAndMatchMatchcode(username, match.getMatchcode());
+			if(bet.isPresent()) {
+				betMatchResponseDTO = new BetMatchResponseDTO(account, match, bet.get());
+			} else {
+				betMatchResponseDTO = new BetMatchResponseDTO(account, match);
+			}
+
+			listaBetsMatches.add(betMatchResponseDTO);			
+		}
+
+		return listaBetsMatches;
 	}	
 
 }
