@@ -14,6 +14,7 @@ import tk.bolaodacopa.bets.models.Match;
 import tk.bolaodacopa.bets.payload.request.BetCreateRequest;
 import tk.bolaodacopa.bets.payload.request.BetUpdateRequest;
 import tk.bolaodacopa.bets.payload.response.BetMatchResponseDTO;
+import tk.bolaodacopa.bets.payload.response.RankingDTO;
 import tk.bolaodacopa.bets.repository.AccountRepository;
 import tk.bolaodacopa.bets.repository.BetRepository;
 import tk.bolaodacopa.bets.repository.MatchRepository;
@@ -174,4 +175,8 @@ public class BetService {
 		return listaBetsMatches;
 	}	
 
+	
+	public List<RankingDTO> generateRanking() {
+		return betRepository.generateRanking();
+	}		
 }
