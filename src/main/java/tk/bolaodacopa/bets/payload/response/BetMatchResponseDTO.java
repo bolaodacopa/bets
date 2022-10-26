@@ -70,8 +70,8 @@ public class BetMatchResponseDTO {
 			if((bet.getHometeamgoals() == match.getHometeamgoals())
 					&& (bet.getAwayteamgoals() == match.getAwayteamgoals()))
 				result = "PLACAR";
-			else if ((bet.getHometeamresult() == match.getHometeamresult())
-					&& (bet.getAwayteamresult() == match.getAwayteamresult()))
+			else if ((bet.getHometeamresult().equals(match.getHometeamresult()))
+					&& (bet.getAwayteamresult().equals(match.getAwayteamresult())))
 				result = "RESULTADO";
 		}
 
