@@ -141,28 +141,37 @@ public class BetService {
 	}
 
 	public List<BetMatchResponseDTO> findAllBetsAndMatches(String username, Map<String, String> allParams) {
+		Account account = null;
 		List<BetMatchResponseDTO> listaBetsMatches = new ArrayList<BetMatchResponseDTO>();
 		List<Match> matches = new ArrayList<Match>();
 		String stage = allParams.getOrDefault("stage", null);
 		String group = allParams.getOrDefault("group", null);
+		String paramusername = allParams.getOrDefault("username", null);
 
-		Account account = accountRepository.findByUsername(username)
-				.orElseThrow(() -> new RuntimeException("Erro: Usuário não encontrado: " + username));		
+		if(paramusername == null) {
+			account = accountRepository.findByUsername(username)
+					.orElseThrow(() -> new RuntimeException("Erro: Usuário não encontrado: " + username));		
 
-		if((stage != null) && (group != null)) {
-			matches = matchRepository.findAllByMatchgroupAndStageName(group, stage);
-		} else if((stage != null)) {
-			matches = matchRepository.findAllByStageName(stage);
-		} else if((group != null)) {
-			matches = matchRepository.findAllByMatchgroup(group);
+			if((stage != null) && (group != null)) {
+				matches = matchRepository.findAllByMatchgroupAndStageName(group, stage);
+			} else if((stage != null)) {
+				matches = matchRepository.findAllByStageName(stage);
+			} else if((group != null)) {
+				matches = matchRepository.findAllByMatchgroup(group);
+			} else {
+				matches = matchRepository.findAll();
+			}		
 		} else {
-			matches = matchRepository.findAll();
-		}		
+			account = accountRepository.findByUsername(paramusername)
+					.orElseThrow(() -> new RuntimeException("Erro: Usuário não encontrado: " + paramusername));
+			
+			matches = matchRepository.findAllByStageFinishedbets("SIM");
+		}
 
 		for(Match match : matches) {
 			BetMatchResponseDTO betMatchResponseDTO = null;
 
-			Optional<Bet> bet = betRepository.findByAccountUsernameAndMatchMatchcode(username, match.getMatchcode());
+			Optional<Bet> bet = betRepository.findByAccountUsernameAndMatchMatchcode(((paramusername == null)?username:paramusername), match.getMatchcode());
 			if(bet.isPresent()) {
 				betMatchResponseDTO = new BetMatchResponseDTO(account, match, bet.get());
 			} else {
@@ -175,7 +184,7 @@ public class BetService {
 		return listaBetsMatches;
 	}	
 
-	
+
 	public List<RankingDTO> generateRanking() {
 		return betRepository.generateRanking();
 	}		

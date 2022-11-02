@@ -15,5 +15,6 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
 	List<Match> findAllByStageName(String stage);
 	List<Match> findAllByMatchgroup(String group);
 	List<Match> findAllByMatchgroupAndStageName(String group, String stage);	
+	List<Match> findAllByStageFinishedbets(String finishedbets);
 
 }
