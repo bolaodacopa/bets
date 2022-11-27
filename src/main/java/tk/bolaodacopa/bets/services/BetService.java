@@ -14,6 +14,7 @@ import tk.bolaodacopa.bets.models.Match;
 import tk.bolaodacopa.bets.payload.request.BetCreateRequest;
 import tk.bolaodacopa.bets.payload.request.BetUpdateRequest;
 import tk.bolaodacopa.bets.payload.response.BetMatchResponseDTO;
+import tk.bolaodacopa.bets.payload.response.BetsByMatchResponseDTO;
 import tk.bolaodacopa.bets.payload.response.RankingDTO;
 import tk.bolaodacopa.bets.repository.AccountRepository;
 import tk.bolaodacopa.bets.repository.BetRepository;
@@ -184,8 +185,22 @@ public class BetService {
 		return listaBetsMatches;
 	}	
 
+	public BetsByMatchResponseDTO findAllBetsByMatch(String username, String matchcode,
+			Map<String, String> allParams) {
+
+		Match match = matchRepository.findByMatchcode(matchcode)
+				.orElseThrow(() -> new RuntimeException("Partida não encontrada: " + matchcode));
+		
+		if(!"SIM".equals(match.getStage().getFinishedbets()))
+			throw new RuntimeException("Fase não finalizada para apostas: " + match.getStage().getName());
+		
+		List<Bet> listBets = betRepository.findAllByMatchMatchcode(matchcode);
+		
+		return new BetsByMatchResponseDTO(match, listBets);
+	}	
 
 	public List<RankingDTO> generateRanking() {
 		return betRepository.generateRanking();
-	}		
+	}
+	
 }

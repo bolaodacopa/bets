@@ -77,7 +77,4 @@ public class BetMatchResponseDTO {
 
 		return result;
 	}
-
-
-
 }

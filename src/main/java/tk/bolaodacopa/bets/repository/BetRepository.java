@@ -23,6 +23,8 @@ public interface BetRepository extends JpaRepository<Bet, Long>  {
 
 	List<Bet> findAllByAccountUsernameAndMatchMatchgroup(String username, String group);
 	
+	List<Bet> findAllByMatchMatchcode(String matchcode);
+	
 /*
     @Query(value = "select "
     		+ " new tk.bolaodacopa.bets.payload.response.RankingDTO(TEMP.username, TEMP.name, TEMP.total, Integer correctmatches, rank() over (order by TEMP.total desc, TEMP.correctmatches desc))"

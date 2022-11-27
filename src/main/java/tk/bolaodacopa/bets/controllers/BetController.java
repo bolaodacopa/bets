@@ -23,6 +23,7 @@ import tk.bolaodacopa.bets.models.Bet;
 import tk.bolaodacopa.bets.payload.request.BetCreateRequest;
 import tk.bolaodacopa.bets.payload.request.BetUpdateRequest;
 import tk.bolaodacopa.bets.payload.response.BetMatchResponseDTO;
+import tk.bolaodacopa.bets.payload.response.BetsByMatchResponseDTO;
 import tk.bolaodacopa.bets.services.BetService;
 
 @RestController
@@ -65,6 +66,13 @@ public class BetController {
 			@RequestParam Map<String,String> allParams) {
 		return this.service.findAllBetsAndMatches(username, allParams);
 	}
-	
+
+	@GetMapping(path = {"/matches/{matchcode}"})
+	@ResponseStatus(HttpStatus.OK)
+	public BetsByMatchResponseDTO findAllBetsByMatch(@RequestHeader("x-token-subject") String username,
+			@PathVariable("matchcode") String matchcode,
+			@RequestParam Map<String,String> allParams) {
+		return this.service.findAllBetsByMatch(username, matchcode, allParams);
+	}
 	
 }
